@@ -15,6 +15,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import Lasso
     
 
+
 def poly_lasso(x_train, x_test, y_train, y_test, poly_order, lasso_alpha):
 
     
@@ -26,7 +27,7 @@ def poly_lasso(x_train, x_test, y_train, y_test, poly_order, lasso_alpha):
     fit = reg_poly.fit(x_poly_train, y_train)
     score = reg_poly.score(x_poly_test, y_test)
     
-    return f'The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {score}.'
+    return print(f'The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {score}.'), 
 
 
 
