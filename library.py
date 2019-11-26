@@ -1,3 +1,5 @@
+import numpy as np
+
 ### SCALING ###
 
 from sklearn.preprocessing import StandardScaler
@@ -40,29 +42,28 @@ def modeling(x_train, x_test, y_train, y_test, poly_order=1, criterion='aic', it
         aic_score = np.mean(lars_poly.criterion_)
         optimal_alpha = lars_poly.alpha_
         
-        print(f'The R-2 for a LASSO Least Angle Regression model with with a Polynomial Order of {poly_order} is {score}.\n
-        The model with the lowest AIC of {aic_score} has a LASSO alpha of {optimal_alpha}')
+        print(f'''The R-2 for a LASSO Least Angle Regression model with with a Polynomial Order of {poly_order} is {score}.\n The model with the lowest AIC of {aic_score} has a LASSO alpha of {optimal_alpha}''')
         
-        return lars_poly
+        return lars_poly, score, aic_score, optimal_alpha
     
     elif not lars_ic:
         
         lasso_reg = Lasso(
-            alpha=alpha, 
+            alpha=lasso_alpha, 
             normalize=False, 
             max_iter=iterations, 
-            random_sate=42
+            random_state=42
         )
         fit = lasso_reg.fit(x_poly_train, y_train)
-        score = lasso_reg.score()
+        score = lasso_reg.score(x_poly_test, y_test)
         
-        print(f'The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {score}.\n')
+        print(f'The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {np.round(score,4)}.\n')
         
-        return lasso_reg
+        return lasso_reg, score
 
 
 ### Cross Validation ###
-class CrossValidation(self, n_splits, model, x_train, y_train):
+class CrossValidation:
     def __init__(self, n_splits, model, x_train, y_train):
         self.crossval = KFold(n_splits, shuffle=True, random_state=42)
         self.scores = cross_val_score(reg_poly, x_poly_train, y_train, scoring='r2', cv=crossval)
@@ -88,16 +89,16 @@ def LassoCV_find_best_target(x_df, y_df, n_splits=10, poly_order=1, lasso_tol=0.
     
     if regression_type == 'lasso':
         if isinstance(y_df, pd.DataFrame):
-        reg_poly = LassoCV(cv = 5, tol=lasso_tol,max_iter=max_iterations)
-        fit = reg_poly.fit(x_train, y_train)
-        score_train = reg_poly.score(x_train, y_train)
-        score_test = reg_poly.score(x_test, y_test)
-        crossval = KFold(n_splits, shuffle=True, random_state=42)
-        cvs = cross_val_score(reg_poly, x_train, y_train, scoring='r2', cv=crossval)
-        cvs_mean_score = np.mean(cvs)
-        print(f'''R2 for training data fitting to variable: {y_df.name} is {score_train}. \n
-        CVS = {cvs_mean_score} . \n
-        R2 for testing data fitting to variable: {y_df.name} is {score_test} \n.''')
+            reg_poly = LassoCV(cv = 5, tol=lasso_tol,max_iter=max_iterations)
+            fit = reg_poly.fit(x_train, y_train)
+            score_train = reg_poly.score(x_train, y_train)
+            score_test = reg_poly.score(x_test, y_test)
+            crossval = KFold(n_splits, shuffle=True, random_state=42)
+            cvs = cross_val_score(reg_poly, x_train, y_train, scoring='r2', cv=crossval)
+            cvs_mean_score = np.mean(cvs)
+            print(f'''R2 for training data fitting to variable: {y_df.name} is {score_train}. \n
+            CVS = {cvs_mean_score} . \n
+            R2 for testing data fitting to variable: {y_df.name} is {score_test} \n.''')
     return reg_poly
 
 
