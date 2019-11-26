@@ -1,8 +1,13 @@
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.linear_model import Lasso, LassoLarsIC
+    
+
 
 ### SCALING ###
 
-from sklearn.preprocessing import StandardScaler
 
 def scale_features(x_train, x_test):
     scaler = StandardScaler()
@@ -13,12 +18,17 @@ def scale_features(x_train, x_test):
 ### Modelling ###
 
 
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import Lasso
-from sklearn.linear_model import LassoLarsIC
-    
 
-def modeling(x_train, x_test, y_train, y_test, poly_order=1, criterion='aic', iterations=1000, lars_ic=False, lasso_alpha=None):
+def modeling(x_train, x_test, y_train, y_test, poly_order=1, criterion='aic', iterations=1000, lars_ic=False, lasso_alpha=None, kfold=True, k_n_splits=2, k_scoring ='r2', var_name = None):
+    """
+    
+    
+    Function takes in 2 pandas DataFrames and 2 Series. 
+    """
+    if var_name==None:
+        var_name=f'{y_test.name[0:4]}_polyO{str(poly_order)}_{k_n_splits}ksplits'
+        if iterations!=1000:
+            var_name=f'{y_test.name[0:4]}_polyO{str(poly_order)}_{k_n_splits}ksplits_iter{iterations}'
     
     # Using scaling function to scale features
     x_train_scaled, x_test_scaled = scale_features(x_train, x_test)
@@ -42,10 +52,23 @@ def modeling(x_train, x_test, y_train, y_test, poly_order=1, criterion='aic', it
         aic_score = np.mean(lars_poly.criterion_)
         optimal_alpha = lars_poly.alpha_
         
-        print(f'''The R-2 for a LASSO Least Angle Regression model with with a Polynomial Order of {poly_order} is {score}.\n The model with the lowest AIC of {aic_score} has a LASSO alpha of {optimal_alpha}''')
+        if kfold:
+            
+            crossval = KFold(n_splits=k_n_splits, shuffle=True, random_state=42)
+            cvs = cross_val_score(lars_poly, x_poly_train, y_train, scoring=k_scoring, cv=crossval)
+            cvs_mean_score = np.mean(cvs)
+
+            print(f'''The R-2 for a LASSO Least Angle Regression model with with a Polynomial Order of {poly_order} is {score}.\n The model with the lowest AIC of {aic_score} has a LASSO alpha of {optimal_alpha} \n Function returns a tuple indexed as follows: \n 0 - Sklearn lasso-regression object  \n  1 - training X data (np array) \n 2 - testing X data (np array)  \n 3  -  Model results table (pandas DataFrame obj \n  4  -  training Y data (np array)  \n  5  -  testing Y data (np array)''')
+            
+            return lars_poly, x_poly_train, x_poly_test, pd.DataFrame(data=[[score, aic_score, optimal_alpha, cvs_mean_score]], columns=['R2','AIC','Optimal_alpha', 'Mean_cvs'], index=[var_name]),  y_train, y_test
+            
+        else:    
+            print(f'''The R-2 for a LASSO Least Angle Regression model with with a Polynomial Order of {poly_order} is {score}.\n The model with the lowest AIC of {aic_score} has a LASSO alpha of {optimal_alpha}\n Function returns a tuple indexed as follows: \n 0 - Sklearn lasso-regression object  \n  1 - training X data (np array) \n 2 - testing X data (np array)  \n 3  -  Model results table (pandas DataFrame obj \n  4  -  training Y data (np array)  \n  5  -  testing Y data (np array) ''')
+           
+            return lars_poly, x_poly_train, x_poly_test, pd.DataFrame(data=[[score, aic_score, optimal_alpha]], columns=['R2','AIC','Optimal_alpha'], index=[var_name]), y_train, y_test
         
-        return lars_poly, score, aic_score, optimal_alpha
-    
+         
+                
     elif not lars_ic:
         
         lasso_reg = Lasso(
@@ -57,9 +80,21 @@ def modeling(x_train, x_test, y_train, y_test, poly_order=1, criterion='aic', it
         fit = lasso_reg.fit(x_poly_train, y_train)
         score = lasso_reg.score(x_poly_test, y_test)
         
-        print(f'The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {np.round(score,4)}.\n')
+        if kfold:
+            
+            crossval = KFold(n_splits=k_n_splits, shuffle=True, random_state=42)
+            cvs = cross_val_score(lasso_reg, x_poly_train, y_train, scoring=k_scoring, cv=crossval)
+            cvs_mean_score = np.mean(cvs)
+            
+            print(f'''The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {np.round(score,4)}.\n  Function returns a tuple indexed as follows:  \n  0 - Sklearn lasso-regression object  \n  1 - training X data (np array) \n 2 - testing X data (np array) \n   3  -  Model results table (pandas DataFrame obj  \n  4  -  training Y data (np array)  \n  5  -  testing Y data (np array) ''')
+            
+            return lasso_reg, score, x_poly_train, x_poly_test, pd.DataFrame(data=[[score, cvs_mean_score]], columns=['R2','Mean_cvs'], index=[var_name]),  y_train, y_test
+            
+        else:
         
-        return lasso_reg, score
+            print(f'''The R-2 for a model with with a Polynomial Order of {poly_order} and a Lasso Alpha of {lasso_alpha} is {np.round(score,4)}.\n  Function returns a tuple indexed as follows:  \n  0 - Sklearn lasso-regression object  \n  1 - training X data (np array) \n 2 - testing X data (np array) \n  3  -  training Y data (np array)  \n  4  -  testing Y data (np array)''')
+            
+            return lasso_reg, score, x_poly_train, x_poly_test, y_train, y_test
 
 
 ### Cross Validation ###
