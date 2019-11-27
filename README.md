@@ -8,9 +8,9 @@ Our primary target audience is bookkeepers for betting agencies that run bets ba
 
 Project outcomes:
 1. 3 linear regression models with LASSO implementation, trained on polynomial data. 
-2. A predictive model  of fight duration that is somewhat better than guessing by average (R2 ~ 0.05)
-3. A predictive model of successful significant strike rate that is significantly better than guessing by average (R2 ~ 0.25)
-4. A predictive model of successful takedown rate that is somewhat better than guessing by average (R2 ~ 0.12)
+2. A predictive model  of fight duration that is somewhat better than guessing by average (R2 ~ 0.056)
+3. A predictive model of successful significant strike rate that is significantly better than guessing by average (R2 ~ 0.11)
+4. A predictive model of successful takedown rate that is somewhat better than guessing by average (R2 ~ 0.095)
 5. Two datasets that can be reused by anyone in the future to enhance or extend our results and analysis. There were several more variables we would have liked to try predicting.
 
 We are grateful for the data provided by Rajeev Warrier (https://www.kaggle.com/rajeevw/ufcdata) and scraped from the UFC Fight Stats website (http://ufcstats.com/statistics/events/completed). 
