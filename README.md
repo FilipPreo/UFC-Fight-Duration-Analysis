@@ -14,28 +14,30 @@ Project outcomes: Three linear regression models with LASSO implementation, trai
 4. A model of successful takedown rate that is somewhat better than guessing by average (R2 ~ 0.095)
 5. Two datasets that can be reused by anyone in the future to enhance or extend our results and analysis. There were several more variables we would have liked to try predicting.
 
+In order to successfully build a linear regression model, we had to choose continuous target variables. We chose 3:
+- durations of fight (in seconds);
+- percentage of successful significant strikes;
+- percentage of successful takedowns ;
+
 Which pre-match fighter stats are most significant in predicting our metrics?
    1. Duration (please note the models are not very strongly predictive): 
-    - Fighter's longest win streak and their total time fought so far (seconds) in their career
-    - Total time fought so far and number of wins by submission
-    - total time fought so far and their height
+    - Fighter's longest win streak and their total time fought so far (seconds) in their career;
+    - Total time fought so far and number of wins by submission;
+    - total time fought so far and their height;
 
    2. Percentage significant strikes:
-    - the square of the height (cm)
+    - the square of the height (cm);
     - reach (cm)
     
    3. Percentage successful takedowns:
-    - Longest win streak and total time fought so far
-    - Total time fought so far and number of wins by submission
-    - Total time fought so far and height (cm)
+    - Longest win streak and total time fought so far;
+    - Total time fought so far and number of wins by submission;
+    - Total time fought so far and height (cm);
     
     
 We are grateful for the data provided by Rajeev Warrier (https://www.kaggle.com/rajeevw/ufcdata) and scraped from the UFC Fight Stats website (http://ufcstats.com/statistics/events/completed). 
 
-In order to successfully build a linear regression model, we had to choose continuous target variables. We chose 3:
-- durations of fight (in seconds)
-- percentage of successful significant strikes
-- percentage of successful takedowns 
+
 
 Files in repository:
 library.py - contains our modelling function and uses Python's ScikitLearn library;
